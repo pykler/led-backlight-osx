@@ -8,6 +8,10 @@ This has been tested and works with CMSTORM Devastator on OS X 10.10 (Yosemite)
 
 Since I always like the numlk turned on, on the keyboard. The script has two modes. If you call the command with no parameters the scrlk and numlk are turned on. If you pass any argument, e.g. "off". Everything but the numlk is turned off.
 
+First download the binary (or compile it by cloning this repo).
+
+ 1. [Download Link](/led-backlight-osx?raw=true)
+
 Once the scrlk is turned on the backlight is enabled.
 
   ./led-backlight-osx # turns the backlight on
