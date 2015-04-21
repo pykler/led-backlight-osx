@@ -71,104 +71,104 @@
 // ----------------------------------------------------
 // function to create a matching dictionary for usage page & usage
 static CFMutableDictionaryRef hu_CreateMatchingDictionaryUsagePageUsage( Boolean isDeviceNotElement,
-																		UInt32 inUsagePage,
-																		UInt32 inUsage )
+                                                                        UInt32 inUsagePage,
+                                                                        UInt32 inUsage )
 {
-	// create a dictionary to add usage page / usages to
-	CFMutableDictionaryRef result = CFDictionaryCreateMutable( kCFAllocatorDefault,
-															  0,
-															  &kCFTypeDictionaryKeyCallBacks,
-															  &kCFTypeDictionaryValueCallBacks );
-	
-	if ( result ) {
-		if ( inUsagePage ) {
-			// Add key for device type to refine the matching dictionary.
-			CFNumberRef pageCFNumberRef = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &inUsagePage );
-			
-			if ( pageCFNumberRef ) {
-				if ( isDeviceNotElement ) {
-					CFDictionarySetValue( result, CFSTR( kIOHIDDeviceUsagePageKey ), pageCFNumberRef );
-				} else {
-					CFDictionarySetValue( result, CFSTR( kIOHIDElementUsagePageKey ), pageCFNumberRef );
-				}
-				CFRelease( pageCFNumberRef );
-				
-				// note: the usage is only valid if the usage page is also defined
-				if ( inUsage ) {
-					CFNumberRef usageCFNumberRef = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &inUsage );
-					
-					if ( usageCFNumberRef ) {
-						if ( isDeviceNotElement ) {
-							CFDictionarySetValue( result, CFSTR( kIOHIDDeviceUsageKey ), usageCFNumberRef );
-						} else {
-							CFDictionarySetValue( result, CFSTR( kIOHIDElementUsageKey ), usageCFNumberRef );
-						}
-						CFRelease( usageCFNumberRef );
-					} else {
-						fprintf( stderr, "%s: CFNumberCreate( usage ) failed.", __PRETTY_FUNCTION__ );
-					}
-				}
-			} else {
-				fprintf( stderr, "%s: CFNumberCreate( usage page ) failed.", __PRETTY_FUNCTION__ );
-			}
-		}
-	} else {
-		fprintf( stderr, "%s: CFDictionaryCreateMutable failed.", __PRETTY_FUNCTION__ );
-	}
-	return result;
-}	// hu_CreateMatchingDictionaryUsagePageUsage
+    // create a dictionary to add usage page / usages to
+    CFMutableDictionaryRef result = CFDictionaryCreateMutable( kCFAllocatorDefault,
+                                                              0,
+                                                              &kCFTypeDictionaryKeyCallBacks,
+                                                              &kCFTypeDictionaryValueCallBacks );
+    
+    if ( result ) {
+        if ( inUsagePage ) {
+            // Add key for device type to refine the matching dictionary.
+            CFNumberRef pageCFNumberRef = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &inUsagePage );
+            
+            if ( pageCFNumberRef ) {
+                if ( isDeviceNotElement ) {
+                    CFDictionarySetValue( result, CFSTR( kIOHIDDeviceUsagePageKey ), pageCFNumberRef );
+                } else {
+                    CFDictionarySetValue( result, CFSTR( kIOHIDElementUsagePageKey ), pageCFNumberRef );
+                }
+                CFRelease( pageCFNumberRef );
+                
+                // note: the usage is only valid if the usage page is also defined
+                if ( inUsage ) {
+                    CFNumberRef usageCFNumberRef = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &inUsage );
+                    
+                    if ( usageCFNumberRef ) {
+                        if ( isDeviceNotElement ) {
+                            CFDictionarySetValue( result, CFSTR( kIOHIDDeviceUsageKey ), usageCFNumberRef );
+                        } else {
+                            CFDictionarySetValue( result, CFSTR( kIOHIDElementUsageKey ), usageCFNumberRef );
+                        }
+                        CFRelease( usageCFNumberRef );
+                    } else {
+                        fprintf( stderr, "%s: CFNumberCreate( usage ) failed.", __PRETTY_FUNCTION__ );
+                    }
+                }
+            } else {
+                fprintf( stderr, "%s: CFNumberCreate( usage page ) failed.", __PRETTY_FUNCTION__ );
+            }
+        }
+    } else {
+        fprintf( stderr, "%s: CFDictionaryCreateMutable failed.", __PRETTY_FUNCTION__ );
+    }
+    return result;
+}    // hu_CreateMatchingDictionaryUsagePageUsage
 
 int main( int argc, const char * argv[] )
 {
-#pragma unused ( argc, argv )
-	IOHIDDeviceRef * tIOHIDDeviceRefs = nil;
+#pragma unused ( argv )
+    IOHIDDeviceRef * tIOHIDDeviceRefs = nil;
 
-	// create a IO HID Manager reference
-	IOHIDManagerRef tIOHIDManagerRef = IOHIDManagerCreate( kCFAllocatorDefault, kIOHIDOptionsTypeNone );
-	require( tIOHIDManagerRef, Oops );
-	
-	// Create a device matching dictionary
-	CFDictionaryRef matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage( TRUE,
-																				  kHIDPage_GenericDesktop,
-																				  kHIDUsage_GD_Keyboard );
-	require( matchingCFDictRef, Oops );
-	
-	// set the HID device matching dictionary
-	IOHIDManagerSetDeviceMatching( tIOHIDManagerRef, matchingCFDictRef );
-	
-	if ( matchingCFDictRef ) {
-		CFRelease( matchingCFDictRef );
-	}
-	
-	// Now open the IO HID Manager reference
-	IOReturn tIOReturn = IOHIDManagerOpen( tIOHIDManagerRef, kIOHIDOptionsTypeNone );
-	require_noerr( tIOReturn, Oops );
-	
-	// and copy out its devices
-	CFSetRef deviceCFSetRef = IOHIDManagerCopyDevices( tIOHIDManagerRef );
-	require( deviceCFSetRef, Oops );
-	
-	// how many devices in the set?
-	CFIndex deviceIndex, deviceCount = CFSetGetCount( deviceCFSetRef );
-	
-	// allocate a block of memory to extact the device ref's from the set into
-	tIOHIDDeviceRefs = malloc( sizeof( IOHIDDeviceRef ) * deviceCount );
-	if (!tIOHIDDeviceRefs) {
-		CFRelease(deviceCFSetRef);
-		deviceCFSetRef = NULL;
-		goto Oops;
-	}
-	
-	// now extract the device ref's from the set
-	CFSetGetValues( deviceCFSetRef, (const void **) tIOHIDDeviceRefs );
-	CFRelease(deviceCFSetRef);
-	deviceCFSetRef = NULL;
-	
-	// before we get into the device loop we'll setup our element matching dictionary
-	matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage( FALSE, kHIDPage_LEDs, 0 );
-	require( matchingCFDictRef, Oops );
-	
-	int led_mask = 5; // no arguments turn on scrlk and numlk
+    // create a IO HID Manager reference
+    IOHIDManagerRef tIOHIDManagerRef = IOHIDManagerCreate( kCFAllocatorDefault, kIOHIDOptionsTypeNone );
+    require( tIOHIDManagerRef, Oops );
+    
+    // Create a device matching dictionary
+    CFDictionaryRef matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage( TRUE,
+                                                                                  kHIDPage_GenericDesktop,
+                                                                                  kHIDUsage_GD_Keyboard );
+    require( matchingCFDictRef, Oops );
+    
+    // set the HID device matching dictionary
+    IOHIDManagerSetDeviceMatching( tIOHIDManagerRef, matchingCFDictRef );
+    
+    if ( matchingCFDictRef ) {
+        CFRelease( matchingCFDictRef );
+    }
+    
+    // Now open the IO HID Manager reference
+    IOReturn tIOReturn = IOHIDManagerOpen( tIOHIDManagerRef, kIOHIDOptionsTypeNone );
+    require_noerr( tIOReturn, Oops );
+    
+    // and copy out its devices
+    CFSetRef deviceCFSetRef = IOHIDManagerCopyDevices( tIOHIDManagerRef );
+    require( deviceCFSetRef, Oops );
+    
+    // how many devices in the set?
+    CFIndex deviceIndex, deviceCount = CFSetGetCount( deviceCFSetRef );
+    
+    // allocate a block of memory to extact the device ref's from the set into
+    tIOHIDDeviceRefs = malloc( sizeof( IOHIDDeviceRef ) * deviceCount );
+    if (!tIOHIDDeviceRefs) {
+        CFRelease(deviceCFSetRef);
+        deviceCFSetRef = NULL;
+        goto Oops;
+    }
+    
+    // now extract the device ref's from the set
+    CFSetGetValues( deviceCFSetRef, (const void **) tIOHIDDeviceRefs );
+    CFRelease(deviceCFSetRef);
+    deviceCFSetRef = NULL;
+    
+    // before we get into the device loop we'll setup our element matching dictionary
+    matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage( FALSE, kHIDPage_LEDs, 0 );
+    require( matchingCFDictRef, Oops );
+    
+    int led_mask = 5; // no arguments turn on scrlk and numlk
     if (argc > 1) {
         led_mask = 1; // any argument tun on only numlk (and the rest off)
         printf("Turning off all but numlk\n");
@@ -176,17 +176,17 @@ int main( int argc, const char * argv[] )
         printf("Turning on numlk and scrlk\n");
     }
     
-    Boolean delayFlag = FALSE;	// if we find an LED element we'll set this to TRUE
+    Boolean delayFlag = FALSE;    // if we find an LED element we'll set this to TRUE
     
     // printf( "pass = %d.\n", pass );
     for ( deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++ ) {
         
         // if this isn't a keyboard device...
         if ( !IOHIDDeviceConformsTo( tIOHIDDeviceRefs[deviceIndex], kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard ) ) {
-            continue;	// ...skip it
+            continue;    // ...skip it
         }
         
-        // printf( "	 device = %p.\n", tIOHIDDeviceRefs[deviceIndex] );
+        // printf( "     device = %p.\n", tIOHIDDeviceRefs[deviceIndex] );
         
         // copy all the elements
         CFArrayRef elementCFArrayRef = IOHIDDeviceCopyMatchingElements( tIOHIDDeviceRefs[deviceIndex],
@@ -209,14 +209,14 @@ int main( int argc, const char * argv[] )
             
             // if this isn't an LED element...
             if ( kHIDPage_LEDs != usagePage ) {
-                continue;	// ...skip it
+                continue;    // ...skip it
             }
             
             uint32_t usage = IOHIDElementGetUsage( tIOHIDElementRef );
             IOHIDElementType tIOHIDElementType = IOHIDElementGetType( tIOHIDElementRef );
             
             /*
-            printf( "		 element = %p (page: %d, usage: %d, type: %d ).\n",
+            printf( "         element = %p (page: %d, usage: %d, type: %d ).\n",
                    tIOHIDElementRef, usagePage, usage, tIOHIDElementType );
              */
             
@@ -232,7 +232,7 @@ int main( int argc, const char * argv[] )
             device_value /= modCFIndex;
             
             /*
-            printf( "			 value = 0x%08lX.\n", tCFIndex );
+            printf( "             value = 0x%08lX.\n", tCFIndex );
             */
 
             uint64_t timestamp = 0; // create the IO HID Value to be sent to this LED element
@@ -242,27 +242,27 @@ int main( int argc, const char * argv[] )
                 tIOReturn = IOHIDDeviceSetValue( tIOHIDDeviceRefs[deviceIndex], tIOHIDElementRef, tIOHIDValueRef );
                 CFRelease( tIOHIDValueRef );
                 require_noerr( tIOReturn, next_element );
-                delayFlag = TRUE;	// set this TRUE so we'll delay before changing our LED values again
+                delayFlag = TRUE;    // set this TRUE so we'll delay before changing our LED values again
             }
-        next_element:	;
+        next_element:    ;
             continue;
         }
         CFRelease( elementCFArrayRef );
     next_device: ;
         continue;
     }
-		
-	
-	if ( matchingCFDictRef ) {
-		CFRelease( matchingCFDictRef );
-	}
-Oops:	;
-	if ( tIOHIDDeviceRefs ) {
-		free(tIOHIDDeviceRefs);
-	}
-	
-	if ( tIOHIDManagerRef ) {
-		CFRelease( tIOHIDManagerRef );
-	}
-	return 0;
+        
+    
+    if ( matchingCFDictRef ) {
+        CFRelease( matchingCFDictRef );
+    }
+Oops:    ;
+    if ( tIOHIDDeviceRefs ) {
+        free(tIOHIDDeviceRefs);
+    }
+    
+    if ( tIOHIDManagerRef ) {
+        CFRelease( tIOHIDManagerRef );
+    }
+    return 0;
 } /* main */
