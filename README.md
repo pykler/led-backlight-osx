@@ -29,3 +29,4 @@ After investigating the code it seems that it uses a binary mask to turn on the 
    
 And so on, ... after the 7th it just seems to cycle back, i.e. 8 is the same as 0
 
+For more internal details of the code, see the [upstream README file](apple-code-readme.rst)
