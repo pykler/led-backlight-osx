@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>4D460B8F-B71A-499C-9A96-0FBC68234274</string>
+	<key>IDESourceControlProjectName</key>
+	<string>led-backlight-osx</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>781C6084A126C1691192401EECF43B642369D4CB</key>
+		<string>github.com:pykler/led-backlight-osx.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>led-backlight-osx.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>781C6084A126C1691192401EECF43B642369D4CB</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:pykler/led-backlight-osx.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>781C6084A126C1691192401EECF43B642369D4CB</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>781C6084A126C1691192401EECF43B642369D4CB</string>
+			<key>IDESourceControlWCCName</key>
+			<string>led-backlight-osx</string>
+		</dict>
+	</array>
+</dict>
+</plist>
