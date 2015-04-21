@@ -34,3 +34,6 @@
 # tmp files
 tmp/
 build/
+
+# Xcode
+UserInterfaceState.xcuserstate
