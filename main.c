@@ -170,7 +170,7 @@ int main( int argc, const char * argv[] )
     
     int led_mask = 5; // no arguments turn on scrlk and numlk
     if (argc > 1) {
-        led_mask = 1; // any argument tun on only numlk (and the rest off)
+        led_mask = 1; // any argument turn on only numlk (and the rest off)
         printf("Turning off all but numlk\n");
     } else {
         printf("Turning on numlk and scrlk\n");
